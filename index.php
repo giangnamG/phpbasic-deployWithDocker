@@ -6,6 +6,8 @@
     if(isset($_POST['login'])){
         $username = $_POST['username'];
         $password = $_POST['password'];
+	$username = addslashes($username);
+        $password = addslashes($password);
         if(empty($username) || empty($password))
             echo "<script>alert('info empty!!')</script>";
         else{
