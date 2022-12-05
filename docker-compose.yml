@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+        nginx:
+            container_name: week4_nginx
+            build:
+                context: .
+                dockerfile: ./docker/nginx.dockerfile
+            ports:
+                - 7890:80
+                - 7891:443
+            volumes:
+                - ./src:/usr/share/nginx/html
+                - ./config/nginx.conf:/etc/nginx/conf.d/default.conf
+            restart: unless-stopped
+            networks:
+                - internal
+
+        php-fpm:
+            container_name: week4_php
+            build:
+                context: .
+                dockerfile: ./docker/php.dockerfile
+            volumes:
+                - ./src:/usr/share/nginx/html
+            restart: unless-stopped
+            networks:
+                - internal
+        db:
+            container_name: week4_db
+            image: mariadb:10.4.12
+            # build:
+            #     context: .
+            #     dockerfile: ./docker/mariadb.dockerfile
+            restart: unless-stopped
+            command: --default-authentication-plugin=mysql_native_password
+            environment:
+                MYSQL_ROOT_PASSWORD: 'ngn@ngn'
+                MYSQL_USER: 'ngn'
+                MYSQL_PASSWORD: 'ngn@ngn'
+                MYSQL_DATABASE: 'week4'
+            volumes:
+                - ./db:/var/lib/mysql
+            networks:
+                - internal
+        phpmyadmin:
+            image: phpmyadmin/phpmyadmin
+            container_name: PMA_week4
+
+            networks:
+                - internal
+            environment:
+                PMA_HOST: db
+                PMA_PORT: 3306
+                PMA_ARBITRARY: 1
+            restart: always
+            ports:
+                - "7892:80"
+
+networks:
+    internal:
+        driver: bridge
